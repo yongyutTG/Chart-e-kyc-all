@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Bar Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body>
+    <p><center>รายงานสมาชิกทำ E-KYC ในแต่ละเดือนและปี (อัปเดตทุก 2 วินาที)</center></p>
+    <div style="width: 75%; margin: auto;">
+        <canvas id="myChart"></canvas>
+    </div>
+    <script>
+        let myChart;
+
+        function fetchDataAndUpdateChart() {
+            fetch('data-ekyc-all.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (myChart) {
+                        myChart.data.labels = data.labels;
+                        myChart.data.datasets[0].data = data.datasets[0].data;
+                        myChart.update();
+                    } else {
+                        const ctx = document.getElementById('myChart').getContext('2d');
+                        myChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: data,
+                            options: {
+                                plugins: {
+                                    datalabels: {
+                                        display: true,
+                                        color: '#444',
+                                        anchor: 'end',
+                                        align: 'top',
+                                        formatter: function(value) {
+                                            return value;
+                                        },
+                                        font: {
+                                            weight: 'bold'
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'เดือนที่ทำ E-KYC'
+                                        }
+                                    },
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: 'จำนวนสมาชิก'
+                                        },
+                                        ticks: {
+                                            min: 0,
+                                            max: 1000,
+                                            stepSize: 100
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: [ChartDataLabels]
+                        });
+                    }
+                });
+        }
+
+        // เรียกใช้งาน fetchDataAndUpdateChart ทุก 2 วินาที (2000 มิลลิวินาที)
+        setInterval(fetchDataAndUpdateChart, 2000);
+
+        // เรียกใช้งานทันทีเมื่อโหลดหน้าเว็บ
+        fetchDataAndUpdateChart();
+    </script>
+</body>
+</html>
