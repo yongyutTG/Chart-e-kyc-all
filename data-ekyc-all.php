@@ -2,6 +2,7 @@
 // data.php
 header('Content-Type: application/json');
 
+
 // เชื่อมต่อฐานข้อมูล
 $servername = "127.0.0.1";
 $username = "root";
